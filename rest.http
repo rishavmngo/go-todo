@@ -1,0 +1,13 @@
+POST http://localhost:3000/users/register
+Content-Type:application/json
+
+{
+	"name": "diya raj",
+	"age" : 23,
+	"email": "rishava@gmail.com"
+}
+
+
+###
+
+GET http://localhost:3000/todo/get

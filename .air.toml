@@ -1,0 +1,9 @@
+[build]
+  bin = "app"
+  cmd = "go build -o app main.go"
+
+[run]
+  cmd = "./app"
+
+[logs]
+  main = true
