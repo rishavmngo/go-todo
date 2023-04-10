@@ -1,32 +1,47 @@
 package userController
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/rishavmngo/todo/models/users"
+	"github.com/rishavmngo/todo/responses"
+	"github.com/rishavmngo/todo/token"
 	"github.com/rishavmngo/todo/utils"
 )
 
-type ErrorMessage struct{
+type ErrorMessage struct {
 	Message string `json:"message"`
-	Error string `json:"error"`
+	Error   string `json:"error"`
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	newUser := &userModel.User{}
 	utils.ParseBody(r, newUser)
-	u, err := newUser.Register()
+	user, err := newUser.Register()
 	if err != nil {
-		errResp := ErrorMessage{Message: "Server Error", Error: err.Error()}
-		w.WriteHeader(http.StatusBadRequest)
-		e, _ := json.Marshal(errResp)
-		w.Write(e)
+		response.ERROR(w, http.StatusBadRequest, err)
+	}
+	response.JSON(w, http.StatusOK, user)
+
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	user := &userModel.User{}
+	utils.ParseBody(r, user)
+	err := user.Validate("login")
+
+	resp, err := user.GetByEmail()
+
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	res, _ := json.Marshal(u)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	tokenString, err := token.Createtoken(resp.ID)
 
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, tokenString)
 }
